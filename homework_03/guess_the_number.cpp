@@ -1,7 +1,12 @@
 #include <iostream>
 #include <fstream>
+#include <map>
+#include <sstream>
 
 const int DEFAULT_MAX_VAL = 100;
+
+void update_table(const std::string& scores_path, std::string& user_name, int user_score);
+std::string file2String(const std::string& path);
 
 
 bool parse_args(int argc, char** argv, bool& show_table, int& default_max_val) {
@@ -78,43 +83,77 @@ void start_game(const std::string& scores_path, int max_val=0) {
 		}
 	} while (true);
 
-	// Write new score to the table
-	{
-		std::ofstream out_file{scores_path, std::ios_base::app};
-		if (!out_file.is_open()) {
-			std::cout << "Failed to open file for write: " << scores_path << "!" << std::endl;
-		}
+	update_table(scores_path, user_name, num_guesses);
+}
 
-		// Append new results to the table
-		out_file << user_name << ' ';
-		out_file << num_guesses << std::endl;
+void update_table(const std::string& scores_path, std::string& user_name, int user_score) {
+	std::ifstream in_file{scores_path};
+	if (!in_file.is_open()) {
+		std::cerr << "Failed to open scores file " << scores_path << std::endl;
 	}
+
+	std::string tmp_path = "./tmp.txt";
+	std::ofstream tmp_file{tmp_path};
+	if (!tmp_file.is_open()) {
+		std::cout << "Failed to open file for write: " << tmp_path << std::endl;
+	}
+
+	// Create new file with updated records
+	std::string line2find = user_name + "\t";
+	bool replacement_done = false;
+	std::string line;
+	while (std::getline(in_file, line)) {
+		if (!replacement_done && line.find(line2find) != std::string::npos) {
+			int prev_score = std::stoi(
+				line.substr(line.find("\t") + 1, line.length() - 1)
+			);
+			if (prev_score > user_score) {
+				tmp_file << user_name << "\t" << user_score << std::endl;
+				replacement_done = true;
+				continue;
+			}
+		}
+		tmp_file << line << std::endl;
+	}
+
+	// Rename updated file to original one
+	tmp_file.close();
+	in_file.close();
+	std::rename(tmp_path.c_str(), scores_path.c_str());
 }
 
 void show_table(const std::string& fn) {
-	{
-		std::ifstream in_file{fn};
-		if (!in_file.is_open()) {
-			std::cout << "Failed to open file to read: " << fn << "!" << std::endl;
+	std::ifstream in_file{fn};
+	if (!in_file.is_open()) {
+		std::cout << "Failed to open file to read: " << fn << "!" << std::endl;
+	}
+
+	std::string username;
+	int high_score = 0;
+	std::map<std::string, int> scores;
+
+	while (true) {
+		// Read the username
+		in_file >> username;
+		// Read the score
+		in_file >> high_score;
+		in_file.ignore();
+
+		if (in_file.fail()) {
+			break;
 		}
 
-		std::cout << "High scores table:" << std::endl;
-
-		std::string username;
-		int high_score = 0;
-		while (true) {
-			// Read the username
-			in_file >> username;
-			// Read the score
-			in_file >> high_score;
-			in_file.ignore();
-
-			if (in_file.fail()) {
-				break;
-			}
-
-			std::cout << username << '\t' << high_score << std::endl;
+		// Keep track only on minimal scores
+		auto score_found = scores.find(username);
+		if (score_found == scores.end() || score_found->second < high_score) {
+			scores.insert(std::pair<std::string, int>(username, high_score));
 		}
+	}
+
+	std::cout << "High scores table:" << std::endl;
+	std::map<std::string, int>::iterator itr;
+	for (itr = scores.begin(); itr != scores.end(); ++itr) {
+		std::cout << itr->first << '\t' << itr->second << std::endl;
 	}
 }
 

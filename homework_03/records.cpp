@@ -2,6 +2,8 @@
 #include <fstream>
 #include <map>
 
+#include "agent.h"
+
 /**
  * Parse single line from records file.
  *
@@ -62,7 +64,11 @@ void UpdateRecords(const std::string& scores_path, std::string& user_name, int s
 					std::cout << "Your stored record is set for difficulty " <<
 						prev_difficulty << ". Do you want to rewrite it? [yes]" << std:: endl;
 					std::string answer;
-					std::cin >> answer;
+					if (user_name == "BinaryAgent") {
+						answer = "yes";
+					} else {
+						std::cin >> answer;
+					}
 					if (answer.compare("yes") != 0) {
 						std::cout << "Keeping current record (DIFFICULTY: " << prev_difficulty
 							<< ", SCORE: " << prev_score << ")." << std::endl;
@@ -71,6 +77,7 @@ void UpdateRecords(const std::string& scores_path, std::string& user_name, int s
 						continue;
 					}
 				}
+				std::cout << "Recording new record: " << difficulty << std::endl;
 				tmp_file << user_name << "\t" << score << "\t" << difficulty << std::endl;
 				replacement_done = true;
 				continue;
@@ -90,6 +97,13 @@ void UpdateRecords(const std::string& scores_path, std::string& user_name, int s
 	tmp_file.close();
 	in_file.close();
 	std::rename(tmp_path.c_str(), scores_path.c_str());
+}
+
+std::string spacing(const std::string& s) {
+	if (s.length() < 6) {
+		return "\t\t";
+	}
+	return "\t";
 }
 
 /**
@@ -129,15 +143,15 @@ void ShowRecords(const std::string& path) {
 	}
 
 	// Header
-	std::cout << std::string(50, '-') << std::endl;
-	std::cout << "NAME\t\tSCORE\t\tLEVEL" << std::endl;
-	std::cout << std::string(50, '-') << std::endl;
+	std::cout << std::string(55, '-') << std::endl;
+	std::cout << "\tNAME\t\tSCORE\t\tLEVEL" << std::endl;
+	std::cout << std::string(55, '-') << std::endl;
 
 	// Records
 	std::map<std::string, int>::iterator itr;
 	for (itr = scores.begin(); itr != scores.end(); ++itr) {
 		auto difficulty = difficulties.find(itr->first)->second;
-		std::cout << itr->first << "\t\t" << itr->second << "\t\t" << difficulty << std::endl;
+		std::cout << "\t" << itr->first << spacing(itr->first) << itr->second << "\t\t" << difficulty << std::endl;
 	}
-	std::cout << std::string(50, '-') << std::endl;
+	std::cout << std::string(55, '-') << std::endl << std::endl;
 }

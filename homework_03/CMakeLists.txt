@@ -5,9 +5,12 @@ project(03.guess_the_number)
 add_executable(guess_the_number
 	play.cpp
 	guess_the_number.h
-    guess_the_number.cpp
+	guess_the_number.cpp
 	records.h
 	records.cpp
+	agent.h
+	tests.h
+	tests.cpp
 )
 
 set_target_properties(guess_the_number PROPERTIES

@@ -1,5 +1,17 @@
 # Guess the Number Game
 
+## Structure
+
+```
+homework_03
+   play                 Parser, main entrypoint
+   guess_the_number     Game workflow logic
+   records              Table of records I/O logic
+   agent                Binary search agent for auto play
+   tests                Manual tests
+
+```
+
 ## Usage
 
 Run game in an interactive mode

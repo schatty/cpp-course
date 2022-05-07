@@ -31,15 +31,31 @@ std::string GetUsername(bool autoplay) {
  * Make guess to reach target value.
  *
  * @param autoplay if true the guess is made by binary search.
- * @returns int as guessed number.
+ * @param agent, reference to the autoplay agent.
+ * @param max_val maximum allowed guessed number
+ * @returns positive int as guessed number, -1 in case of an input error.
  */
-int MakeGuess(bool autoplay, BinarySearchAgent& agent) {
-	int val;
+int MakeGuess(bool autoplay, BinarySearchAgent& agent, int max_val) {
 	if (autoplay) {
 		return agent.makeGuess();
 	}
 
-	std::cin >> val;
+	int val;
+	std::string val_str;
+	std::cin >> val_str;
+
+	try {
+		val = std::stoi(val_str);
+	} catch (...) {
+		std::cout << "Wrong input, expected a positive integer!" << std::endl;
+		return -1;
+	}
+
+	// User warning regarding wrong integer range
+	if (val < 0 || val > max_val) {
+		std::cout << "Warning: the guees is expected to be between 0 and " << max_val << "!" << std::endl;
+	}
+
 	return val;
 }
 
@@ -84,7 +100,7 @@ void RunGame(const std::string& scores_path, int max_val=0,
 
 	std::cout << "Enter your guess:" << std::endl;
 	do {
-		current_value = MakeGuess(autoplay, agent);
+		current_value = MakeGuess(autoplay, agent, max_val);
 		num_guesses++;
 
 		if (current_value < target_value) {

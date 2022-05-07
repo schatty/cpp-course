@@ -4,8 +4,9 @@
 
 ```
 homework_03
-   play                 Parser, main entrypoint
+   main                 Parser, main entrypoint
    guess_the_number     Game workflow logic
+   argparse             Argument parser for CLI
    records              Table of records I/O logic
    agent                Binary search agent for auto play
    tests                Manual tests
@@ -16,7 +17,12 @@ homework_03
 
 Run game in an interactive mode
 ```
-./guess_the_number -level 3
+./guess_the_number
+```
+
+Run game in an interactive mode (with given upper value for target)
+```
+./guess_the_number -max 110
 ```
 
 Run game in an auto-played mode (via binary search)

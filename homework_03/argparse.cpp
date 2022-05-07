@@ -1,13 +1,4 @@
 #include <iostream>
-#include <fstream>
-#include <map>
-#include <sstream>
-
-#include "records.h"
-#include "guess_the_number.h"
-#include "tests.h"
-
-const int DEFAULT_MAX_VAL = 100;
 
 
 /**
@@ -21,12 +12,12 @@ const int DEFAULT_MAX_VAL = 100;
  * @param run_tests if true run tests for the game.
  * @return true if all arguments are set correctly.
  */
-bool ParseArgs(int argc, char** argv, bool& show_table, int& default_max_val,
+bool ParseArgs(int argc, const char** argv, bool& show_table, int& default_max_val,
 		int& difficulty_level, bool& autoplay, bool& run_tests) {
 	std::string cur_arg;
-	int i{1};
+	int i{0};
 	bool max_set = false, level_set = false;
-	do {
+	while (++i < argc) {
 		cur_arg = argv[i];
 		// (1) Check -table argument
 		if (cur_arg.compare("-table") == 0) {
@@ -73,14 +64,11 @@ bool ParseArgs(int argc, char** argv, bool& show_table, int& default_max_val,
 		// (4) Check -autoplay argument
 		} else if (cur_arg.compare("-autoplay") == 0) {
 			autoplay = true;
+		// (5) Check -tests argument
 		} else if (cur_arg.compare("-tests") == 0) {
 			run_tests = true;
 		}
-
-		if (i++ == argc-1) {
-			break;
-		}
-	} while(true);
+	}
 
 	// Check arguments compatibility
 	if (max_set && level_set) {
@@ -88,29 +76,4 @@ bool ParseArgs(int argc, char** argv, bool& show_table, int& default_max_val,
 		return false;
 	}
 	return true;
-}
-
-int main(int argc, char** argv) {
-	const std::string scores_fn = "scores_table.txt";
-	bool show_table{false};
-	int difficulty_level = 0;  // 0 - no level by default
-	int max_value = DEFAULT_MAX_VAL;
-	bool autoplay = false;
-	bool run_tests = false;
-
-	bool args_valid = ParseArgs(argc, argv, show_table, max_value,
-			difficulty_level, autoplay, run_tests);
-	if (!args_valid) {
-		std::cout << "Exiting..." << std::endl;
-	}
-
-	if (run_tests) {
-		RunTests();
-	} else if (show_table) {
-		ShowRecords(scores_fn);
-	} else {
-		RunGame(scores_fn, max_value, difficulty_level, autoplay);
-	}
-
-	return 0;
 }

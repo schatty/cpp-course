@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.5)
 project(03.guess_the_number)
 
 add_executable(guess_the_number
-	play.cpp
+	main.cpp
+	argparse.h
+	argparse.cpp
 	guess_the_number.h
 	guess_the_number.cpp
 	records.h
